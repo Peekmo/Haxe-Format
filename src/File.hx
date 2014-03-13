@@ -1,4 +1,5 @@
 import tools.ArrayTools;
+import tools.FormatterTools;
 
 /**
  * File's informations
@@ -11,6 +12,11 @@ import tools.ArrayTools;
      * @var content : String Initial file's content
      **/
     private var content : String;
+
+    /**
+     * @var package : String File's package
+     */
+    private var packages : String;
 
     /**
      * @var imports : Array<String> All file's necessaries imports
@@ -34,13 +40,38 @@ import tools.ArrayTools;
      */
     public function format() : String
     {
-        var splitted : Array<String> = this.content.split(';');
+        // Get packages
+        this.findPackage();
+
+        var splitted = this.content.split(';');
 
         for (line in splitted.iterator()) {
             this.addImport(line);
         }
 
-        return this.imports.join('\n');
+        return this.buildFile();
+    }
+
+    /**
+     * Builds final file's data
+     * @return New file formatted
+     **/
+    private function buildFile() : String
+    {
+        var data : String = '';
+
+        // Package
+        if (null != this.packages) {
+            data += 'package ' + this.packages + ';';
+            data += FormatterTools.newLine(2);
+        }
+
+        // Imports
+        for (imp in this.imports) {
+            data += 'import ' + imp + ';' + FormatterTools.newLine(1);
+        }
+
+        return data;
     }
 
     /**
@@ -57,10 +88,25 @@ import tools.ArrayTools;
                     return false;
                 }
             }
-            
+
             this.imports.push(name);
         }
 
         return true;
     }
- }
+
+    /**
+     * Find file's package
+     */
+    private function findPackage() : Void
+    {
+        var splitted : Array<String> = this.content.split('package');
+        
+        if (splitted.length > 2) {
+            throw "Invalid packages";
+        } 
+        else if (splitted.length == 2) {
+            this.packages = splitted[1].split(';')[0];
+        }
+    }
+}
