@@ -1,3 +1,5 @@
+package data;
+
 import tools.ArrayTools;
 import tools.FormatterTools;
 
@@ -22,6 +24,8 @@ import tools.FormatterTools;
      * @var imports : Array<String> All file's necessaries imports
      **/
     private var imports : Array<String>;
+
+    private var nuAttributes : Array<Attributes>;
 
     /**
      * Constructor
