@@ -1,6 +1,7 @@
 package data;
 
-import tools.ArrayTools;
+import haxe.ds.StringMap;
+import tools.StringMapTools;
 import tools.FormatterTools;
 
 /**
@@ -21,11 +22,11 @@ import tools.FormatterTools;
     private var packages : String;
 
     /**
-     * @var imports : Array<String> All file's necessaries imports
+     * @var imports : StringMap<String> All file's necessaries imports
      **/
-    private var imports : Array<String>;
+    private var imports : StringMap<String>;
 
-    private var nuAttributes : Array<Attributes>;
+    private var nuAttributes : Array<Attribute>;
 
     /**
      * Constructor
@@ -35,7 +36,7 @@ import tools.FormatterTools;
     public function new(content : String) : Void
     {
         this.content = content;
-        this.imports = new Array<String>();
+        this.imports = new StringMap<String>();
     }
 
     /**
@@ -44,14 +45,13 @@ import tools.FormatterTools;
      */
     public function format() : String
     {
-        // Get packages
-        this.findPackage();
-
         var splitted = this.content.split(';');
+ 
+        // Get packages
+        this.findPackage(splitted);
 
-        for (line in splitted.iterator()) {
-            this.addImport(line);
-        }
+        // Get imports
+        this.findImports(splitted);
 
         return this.buildFile();
     }
@@ -85,15 +85,20 @@ import tools.FormatterTools;
      */
     private function addImport(name : String) : Bool
     {
-        if (!ArrayTools.inArray(name, this.imports)) {
-            var className : String = name.split('.').pop();
-            for (v in this.imports.iterator()) {
-                if (v.split('.').pop() == className) {
-                    return false;
-                }
+        if (!StringMapTools.inStringMap(name, this.imports)) {
+            var className : String = StringTools.trim(name.split('.').pop());
+            var spaceSplit : Array<String> = name.split(' ');
+
+            // If spaces, that's probably an alias
+            if (spaceSplit.length > 1) {
+                className = spaceSplit[spaceSplit.length - 1];
+            }
+            
+            if (this.imports.exists(className)) {
+                return false;
             }
 
-            this.imports.push(name);
+            this.imports.set(className, name);
         }
 
         return true;
@@ -101,16 +106,40 @@ import tools.FormatterTools;
 
     /**
      * Find file's package
+     *
+     * @param splitted : Array<String> ';' Splitted values
      */
-    private function findPackage() : Void
+    private function findPackage(splitted : Array<String>) : Void
     {
-        var splitted : Array<String> = this.content.split('package');
-        
-        if (splitted.length > 2) {
-            throw "Invalid packages";
-        } 
-        else if (splitted.length == 2) {
-            this.packages = splitted[1].split(';')[0];
+        var firstLine : String = StringTools.trim(splitted[0]);
+
+        if (StringTools.startsWith(firstLine, 'package')) {
+            this.packages = StringTools.trim(firstLine.substr('package'.length));
+            splitted.shift();
+        }
+    }
+
+    /**
+     * Find file's imports
+     *
+     * @param splitted : Array<String> ';' Splitted values
+     */
+    private function findImports(splitted : Array<String>) : Void
+    {
+        var i : Int = 0;
+        for (line in splitted.iterator()) {
+            line = StringTools.trim(line);
+
+            if (!StringTools.startsWith(line, 'import')) {
+                break;
+            }
+
+            this.addImport(StringTools.trim(line.substr('import'.length)));
+            i += 1;
+        }
+
+        for (x in 0...(i)) {
+            splitted.shift();
         }
     }
 }

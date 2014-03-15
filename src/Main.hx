@@ -11,7 +11,7 @@
      **/
     public static function main() : Void
     {
-        var file : File = new data.File(sys.io.File.getContent('Test.hx'));
+        var file : data.File = new data.File(sys.io.File.getContent('Test.hx'));
         trace('\n' + file.format());
     }
  }

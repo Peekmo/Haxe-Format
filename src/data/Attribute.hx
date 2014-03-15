@@ -20,20 +20,15 @@ class Attribute extends CommonDeclarations
     /**
      * @var defaultAccessors : Accessor Default accessors for a public attribute
      */
-    public static inline var defaultAccessors = {
-        get: 'default',
-        set: 'default'
-    } 
+    public static inline var defaultAccessors = "{
+            get: 'default',
+            set: 'default'
+        };";
 
     /**
      * @var name : String Attribute's name
      */
     public var name(default, null) : String;
-
-    /**
-     * @var visibility : String Attribute's visibility (private, public)
-     */
-    public var visibility(default, null) : String;
 
     /**
      * @var value : String Default attribute's value
@@ -57,6 +52,7 @@ class Attribute extends CommonDeclarations
      */
     public function new(data : String) : Void
     {
+        super(data);
         this.process(data);
     }
 
@@ -65,7 +61,7 @@ class Attribute extends CommonDeclarations
      *
      * @param  data : String Data to parse
      */
-    private function process(data : String) : Void
+    private function processAttribute(data : String) : Void
     {
 
     }
