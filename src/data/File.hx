@@ -3,6 +3,7 @@ package data;
 import haxe.ds.StringMap;
 import tools.StringMapTools;
 import tools.FormatterTools;
+using tools.ArrayTools;
 
 /**
  * File's informations
@@ -26,6 +27,11 @@ import tools.FormatterTools;
      **/
     private var imports : StringMap<String>;
 
+    /**
+     * @var usings : Array<String> All usings
+     */
+    private var usings : Array<String>;
+
     private var nuAttributes : Array<Attribute>;
 
     /**
@@ -36,6 +42,7 @@ import tools.FormatterTools;
     public function new(content : String) : Void
     {
         this.content = content;
+        this.usings  = new Array<String>();
         this.imports = new StringMap<String>();
     }
 
@@ -75,6 +82,11 @@ import tools.FormatterTools;
             data += 'import ' + imp + ';' + FormatterTools.newLine(1);
         }
 
+        // Usings
+        for (use in this.usings) {
+            data += 'using ' + use + ';' + FormatterTools.newLine(1);
+        }
+
         return data;
     }
 
@@ -93,7 +105,7 @@ import tools.FormatterTools;
             if (spaceSplit.length > 1) {
                 className = spaceSplit[spaceSplit.length - 1];
             }
-            
+
             if (this.imports.exists(className)) {
                 return false;
             }
@@ -130,11 +142,16 @@ import tools.FormatterTools;
         for (line in splitted.iterator()) {
             line = StringTools.trim(line);
 
-            if (!StringTools.startsWith(line, 'import')) {
+            if (StringTools.startsWith(line, 'import')) {
+                this.addImport(StringTools.trim(line.substr('import'.length)));
+            }
+            else if (StringTools.startsWith(line, 'using')) {
+                this.usings.push(StringTools.trim(line.substr('using'.length)));
+            }
+            else {
                 break;
             }
 
-            this.addImport(StringTools.trim(line.substr('import'.length)));
             i += 1;
         }
 
