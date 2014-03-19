@@ -60,6 +60,8 @@ using tools.ArrayTools;
         // Get imports
         this.findImports(splitted);
 
+        this.content = splitted.join(';');
+        
         return this.buildFile();
     }
 
